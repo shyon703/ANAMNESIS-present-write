@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<script>(function(){try{var t=localStorage.getItem('anamnesis_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<title>ANAMNESIS · WRITE</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --ivory:#0e0e0e; --paper:#171717; --ink:#e4e4e0;
+    --muted:#92928d; --line:rgba(220,220,214,.26);
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --ivory:#0e0e0e; --paper:#171717; --ink:#e4e4e0; --muted:#92928d; --line:rgba(220,220,214,.26);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --ivory:#0e0e0e; --paper:#171717; --ink:#e4e4e0; --muted:#92928d; --line:rgba(220,220,214,.26);
+  }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); height:100%; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100%; background:var(--ivory); color:var(--ink);
+    font-family: Georgia, 'Nanum Myeongjo', serif;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:2.2rem 1.4rem 4rem; }
+  .kicker{ font-family: Arial, sans-serif; font-size:0.7rem; letter-spacing:0.25em; color:var(--muted); margin-bottom:0.3rem; }
+  h1{ font-size:1.9rem; margin:0 0 0.2rem; letter-spacing:0.02em; }
+  .sub{ font-size:0.85rem; color:var(--muted); font-style:italic; margin-bottom:1.6rem; }
+  .card{ background:var(--paper); padding:1.3rem; margin-bottom:1.6rem; border-radius:2px; }
+  label{ display:block; font-family:Arial,sans-serif; font-size:0.7rem; letter-spacing:0.08em; color:var(--muted); margin-bottom:0.3rem; }
+  textarea{
+    width:100%; border:none; border-bottom:1px solid var(--line); background:transparent;
+    font-family:inherit; font-size:0.95rem; color:var(--ink); padding:0.4rem 0; margin-bottom:1rem; resize:vertical;
+  }
+  textarea:focus{ outline:none; border-bottom-color:var(--ink); }
+  .prompt{ font-size:1rem; font-style:italic; line-height:1.6; margin-bottom:1rem; }
+  button.act{
+    font-family:Arial,sans-serif; font-size:0.78rem; letter-spacing:0.08em; padding:0.6rem 1.3rem;
+    background:var(--ink); color:var(--ivory); border:none; cursor:pointer; border-radius:2px;
+  }
+  .status{ font-family:Arial,sans-serif; font-size:0.72rem; color:var(--muted); margin-left:0.7rem; }
+  .section-label{ font-family:Arial,sans-serif; font-size:0.7rem; letter-spacing:0.1em; color:var(--muted); margin:1.8rem 0 0.8rem; }
+
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:0.8rem; }
+  .cal-head .month{ font-size:1.05rem; }
+  .cal-nav{
+    font-family:Arial,sans-serif; background:transparent; border:1px solid var(--line); color:var(--muted);
+    width:2.1rem; height:2.1rem; cursor:pointer; border-radius:2px;
+  }
+  .cal-stat{ font-family:Arial,sans-serif; font-size:0.7rem; color:var(--muted); margin-bottom:0.8rem; letter-spacing:0.05em; }
+  .dow, .grid{ display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; }
+  .dow div{ font-family:Arial,sans-serif; font-size:0.65rem; color:var(--muted); text-align:center; padding-bottom:4px; }
+  .cell{
+    position:relative; aspect-ratio:1 / 1; container-type:inline-size;
+    border:1px solid var(--line); border-radius:2px; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cell .n{ position:absolute; top:3px; left:4px; font-family:Arial,sans-serif; font-size:0.58rem; color:var(--muted); z-index:1; }
+  .cell.today{ outline:2px solid var(--ink); outline-offset:-2px; }
+  .cell.filled{ background:var(--paper); cursor:pointer; border-color:var(--paper); }
+  .cell.filled.sel{ outline:2px solid var(--ink); outline-offset:-2px; }
+  .cell .glyph{
+    font-size:2.6rem; font-size:84cqw; font-weight:700; line-height:1; color:var(--ink);
+    font-family: Georgia, 'Nanum Myeongjo', serif; user-select:none;
+  }
+  .cell.blank{ border:none; }
+
+  .detail{ margin-top:1.2rem; }
+  .detail h3{ font-size:1rem; margin:0 0 0.6rem; font-weight:700; }
+  .entry{ border-top:1px solid var(--line); padding:0.9rem 0; }
+  .entry:first-of-type{ border-top:none; }
+  .entry .meta{ font-family:Arial,sans-serif; font-size:0.68rem; letter-spacing:0.05em; color:var(--muted); margin-bottom:0.25rem; }
+  .entry .body{ font-size:0.92rem; line-height:1.5; white-space:pre-wrap; }
+  .entry-head{ display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+  .delete-entry{ appearance:none; border:1px solid var(--line); border-radius:999px; background:transparent; color:var(--muted); font-family:Arial,sans-serif; font-size:.62rem; letter-spacing:.08em; padding:.32rem .55rem; cursor:pointer; }
+  .delete-entry:hover{ color:var(--ink); border-color:var(--ink); }
+
+  .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem; }
+  .topbar .kicker{ margin-bottom:0; }
+  .theme{
+    font-family:Arial,sans-serif; font-size:0.66rem; letter-spacing:0.08em; background:transparent;
+    border:1px solid var(--line); color:var(--muted); padding:0.3rem 0.7rem; border-radius:2px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><div class="kicker">ANAMNESIS</div><button class="theme" id="themeBtn" type="button" aria-label="화면 모드 전환"></button></div>
+  <h1>WRITE</h1>
+  <div class="sub">쓴 날은 한 글자로 남는다</div>
+
+  <div class="card">
+    <div class="prompt" id="writePrompt"></div>
+    <label for="writeNote">쓰기</label>
+    <textarea id="writeNote" rows="5" placeholder="지금 떠오르는 생각을 적어보세요"></textarea>
+    <button class="act" id="saveWrite" type="button">기록하기</button>
+    <span class="status" id="writeStatus" role="status" aria-live="polite"></span>
+  </div>
+
+  <div class="section-label">나의 달력</div>
+  <div class="cal-head">
+    <button class="cal-nav" id="prevM" type="button" aria-label="이전 달">‹</button>
+    <div class="month" id="monthLabel"></div>
+    <button class="cal-nav" id="nextM" type="button" aria-label="다음 달">›</button>
+  </div>
+  <div class="cal-stat" id="calStat"></div>
+  <div class="dow"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+  <div class="grid" id="calGrid"></div>
+  <div class="detail" id="dayDetail"></div>
+</div>
+
+<script>
+const KEY = 'anamnesis_write_v1';
+const PROMPTS = [
+  '오늘, 무엇을 적어두고 싶은가.',
+  '지금 이 순간을 한 문장으로 남긴다면.',
+  '어엿비 너겨 — 오늘 누구에게 마음을 전하고 싶었는가.',
+  '과거의 나에게 하고 싶은 말이 있다면.',
+  '미래의 내가 오늘을 돌아본다면, 무엇을 기억할까.'
+];
+
+function loadEntries(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) { return []; }
+}
+function saveEntries(arr){
+  try { localStorage.setItem(KEY, JSON.stringify(arr)); return true; }
+  catch (e) { return false; }
+}
+function dayKey(ts){
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function el(tag, cls, text){
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+function firstGlyph(note){
+  const chars = Array.from((note || '').trim());
+  for (const c of chars){ if (/[\p{L}\p{N}]/u.test(c)) return c; }
+  return chars[0] || '';
+}
+
+let selectedDay = null;
+const now = new Date();
+let calY = now.getFullYear(), calM = now.getMonth();
+
+function renderCalendar(){
+  const byDay = new Map();
+  loadEntries().slice().sort((a, b) => a.createdAt - b.createdAt).forEach(e => {
+    const k = dayKey(e.createdAt);
+    if (!byDay.has(k)) byDay.set(k, []);
+    byDay.get(k).push(e);
+  });
+
+  document.getElementById('monthLabel').textContent = calY + '년 ' + (calM + 1) + '월';
+  const startDow = new Date(calY, calM, 1).getDay();
+  const dim = new Date(calY, calM + 1, 0).getDate();
+  const todayKey = dayKey(Date.now());
+  const grid = document.getElementById('calGrid');
+  grid.textContent = '';
+  let count = 0;
+
+  for (let i = 0; i < startDow; i++) grid.appendChild(el('div', 'cell blank'));
+  for (let d = 1; d <= dim; d++){
+    const k = calY + '-' + String(calM + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const list = byDay.get(k);
+    const cell = el(list ? 'button' : 'div', 'cell' + (list ? ' filled' : '') + (k === todayKey ? ' today' : '') + (list && k === selectedDay ? ' sel' : ''));
+    if (list) { cell.type = 'button'; cell.setAttribute('aria-label', k + ' 기록 보기'); cell.setAttribute('aria-pressed', String(k === selectedDay)); }
+    cell.appendChild(el('span', 'n', String(d)));
+    if (list){
+      count++;
+      cell.appendChild(el('span', 'glyph', firstGlyph(list[0].note)));
+      cell.onclick = () => { selectedDay = k; renderCalendar(); };
+    }
+    grid.appendChild(cell);
+  }
+  document.getElementById('calStat').textContent = count ? ('이번 달 ' + count + '일 기록했어요') : '이번 달은 아직 비어 있어요';
+
+  const detail = document.getElementById('dayDetail');
+  detail.textContent = '';
+  const list = selectedDay ? byDay.get(selectedDay) : null;
+  if (list){
+    const parts = selectedDay.split('-');
+    detail.appendChild(el('h3', '', Number(parts[1]) + '월 ' + Number(parts[2]) + '일'));
+    list.forEach(e => {
+      const box = el('div', 'entry');
+      const d = new Date(e.createdAt);
+      const head = el('div', 'entry-head');
+      head.appendChild(el('div', 'meta', String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')));
+      const remove = el('button', 'delete-entry', '기록 삭제');
+      remove.type = 'button';
+      remove.setAttribute('aria-label', '기록 삭제');
+      remove.onclick = () => {
+        const entries = loadEntries();
+        const index = entries.findIndex(item => item.createdAt === e.createdAt && item.note === e.note);
+        if (index < 0) return;
+        entries.splice(index, 1);
+        if (saveEntries(entries)) {
+          if (!entries.some(item => dayKey(item.createdAt) === selectedDay)) selectedDay = null;
+          renderCalendar();
+        }
+      };
+      head.appendChild(remove);
+      box.appendChild(head);
+      box.appendChild(el('div', 'body', e.note || ''));
+      detail.appendChild(box);
+    });
+  }
+}
+
+document.getElementById('prevM').onclick = () => { calM--; if (calM < 0){ calM = 11; calY--; } renderCalendar(); };
+document.getElementById('nextM').onclick = () => { calM++; if (calM > 11){ calM = 0; calY++; } renderCalendar(); };
+
+document.getElementById('saveWrite').onclick = () => {
+  const note = document.getElementById('writeNote').value.trim();
+  const status = document.getElementById('writeStatus');
+  if (!note){ status.textContent = '한 줄이라도 적어주세요'; document.getElementById('writeNote').focus(); return; }
+  const entries = loadEntries();
+  entries.push({ note, createdAt: Date.now() });
+  const ok = saveEntries(entries);
+  status.textContent = ok ? '남겼어요' : '저장 실패';
+  if (ok){
+    document.getElementById('writeNote').value = '';
+    const t = new Date();
+    calY = t.getFullYear(); calM = t.getMonth();
+    selectedDay = dayKey(t.getTime());
+    renderCalendar();
+  }
+  setTimeout(() => { status.textContent = ''; }, 2000);
+};
+
+document.getElementById('writePrompt').textContent = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+renderCalendar();
+
+/* ---------- theme toggle: auto -> light -> dark ---------- */
+(function(){
+  const THEME_KEY = 'anamnesis_theme';
+  const ORDER = ['auto', 'light', 'dark'];
+  const LABEL = { auto: 'AUTO · 기기 설정', light: 'LIGHT · 밝게', dark: 'DARK · 어둡게' };
+  const btn = document.getElementById('themeBtn');
+  function get(){
+    try { const t = localStorage.getItem(THEME_KEY); return ORDER.indexOf(t) >= 0 ? t : 'auto'; }
+    catch (e) { return 'auto'; }
+  }
+  function apply(t){
+    const r = document.documentElement;
+    if (t === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', t);
+    btn.textContent = LABEL[t];
+  }
+  btn.onclick = function(){
+    const next = ORDER[(ORDER.indexOf(get()) + 1) % ORDER.length];
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    apply(next);
+  };
+  apply(get());
+})();
+</script>
+</body>
+</html>
